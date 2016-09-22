@@ -1,49 +1,67 @@
 (function () {
 'use strict';
 
-angular.module('ControllerAsApp', [])
-.controller('ParentController1', ParentController1)
-.controller('ChildController1', ChildController1)
-.controller('ParentController2', ParentController2)
-.controller('ChildController2', ChildController2);
 
-ParentController1.$inject = ['$scope'];
-function ParentController1($scope) {
-  $scope.parentValue = 1;
-  $scope.pc = this;
-  $scope.pc.parentValue = 1;
+angular.module('ShoppingListCheckOff', [])
+.controller('ToBuyShoppingController', ToBuyShoppingController)
+.controller('AlreadyBoughtShoppingController', AlreadyBoughtShoppingController)
+.service('ShoppingListCheckOffService', ShoppingListCheckOffService);
+
+ToBuyShoppingController.$inject = ['ShoppingListCheckOffService'];
+function ToBuyShoppingController(ShoppingListCheckOffService) {
+  var tobuy = this;
+
+  // itemAdder.itemName = "";
+  // itemAdder.itemQuantity = "";
+
+  tobuy.items = ShoppingListCheckOffService.getToBuyItems();
+
+  tobuy.buyItem = function (itemIndex) {
+    ShoppingListCheckOffService.buyItem(itemIndex);
+  };
+
+  // itemAdder.addItem = function () {
+  //   ShoppingListService.addItem(itemAdder.itemName, itemAdder.itemQuantity);
+  // }
+}
+
+AlreadyBoughtShoppingController.$inject = ['ShoppingListCheckOffService'];
+function AlreadyBoughtShoppingController(ShoppingListCheckOffService) {
+  var bought = this;
+
+  bought.items = ShoppingListCheckOffService.getBoughtItems();
 }
 
 
-ChildController1.$inject = ['$scope'];
-function ChildController1($scope) {
-  // console.log("$scope.parentValue: ", $scope.parentValue);
-  // console.log("CHILD $scope: ", $scope);
-  //
-  // $scope.parentValue = 5;
-  // console.log("*** CHANGED: $scope.parentValue = 5 ***");
-  // console.log("$scope.parentValue: ", $scope.parentValue);
-  // console.log($scope);
-  //
-  // console.log("$scope.pc.parentValue: ", $scope.pc.parentValue)
-  // $scope.pc.parentValue = 5;
-  // console.log("** CHANGED: $scope.pc.parentValue = 5; ***");
-  // console.log("$scope.pc.parentValue: ", $scope.pc.parentValue)
-  // console.log("$scope: ", $scope);
-  //
-  // console.log("$scope.$parent.parentValue: ", $scope.$parent.parentValue);
-}
+function ShoppingListCheckOffService() {
+  var service = this;
 
-// ** Controller As syntax
-function ParentController2() {
-  var parent = this;
-  parent.value = 1;
-}
-ChildController2.$inject = ['$scope'];
-function ChildController2($scope) {
-  var child = this;
-  child.value = 5;
-  console.log("ChildController2 $scope: ", $scope);
+  // List of shopping items
+  var tobuyItems = [{name: "Cookies", quantity: 10}, {name: "Soda", quantity: 2},
+                      {name: "Cups", quantity: 20}, {name: "Napkins", quantity: 20},
+                      {name: "Pepto Bismol", quantity: 5}]
+  var boughtItems = [];
+
+  service.buyItem = function (itemIndex) {
+    // var item = {
+    //   name: tobuyItems[itemIndex].name,
+    //   quantity: tobuyItems[itemIndex].quantity
+    // };
+    boughtItems.push(tobuyItems[itemIndex]);
+    service.removeToBuyItem(itemIndex);
+  };
+
+  service.removeToBuyItem = function (itemIdx) {
+    tobuyItems.splice(itemIdx, 1);
+  };
+
+  service.getBoughtItems = function () {
+    return boughtItems;
+  };
+
+  service.getToBuyItems = function () {
+    return tobuyItems;
+  };
 }
 
 })();
